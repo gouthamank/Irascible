@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_server_discard"
+        android:title="@string/menu.server.discard"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_discard_white_24dp"/>
+
+    <item
+        android:id="@+id/menu_server_accept"
+        android:title="@string/menu.server.accept"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_done_white_24dp"/>
+</menu>

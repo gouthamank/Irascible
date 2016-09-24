@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Irascible</string>
+    <string name="scroll_aware_fab">app.drool.irascible.impl.ScrollAwareFAB</string>
+
+    <string name="activity.main.list.servers.empty">No servers added</string>
+
+    <string name="dialog.main.server.address.hint">Address</string>
+    <string name="dialog.main.server.address.error">Enter a valid IRC server address</string>
+    <string name="dialog.main.server.port.hint">Port</string>
+    <string name="dialog.main.server.port.error">Enter a valid port</string>
+    <string name="dialog.main.server.name.hint">Server Name</string>
+    <string name="dialog.main.server.name.error">Enter a unique server name</string>
+    <string name="dialog.main.server.nick.hint">Nickname</string>
+    <string name="dialog.main.server.nick.error">Enter a valid nickname</string>
+    <string name="dialog.main.server.checkbox.nick.override">Override default nickname</string>
+    <string name="dialog.main.server.positive">Add</string>
+    <string name="dialog.main.server.edit">Edit</string>
+    <string name="dialog.main.server.negative">Cancel</string>
+    <string name="dialog.main.server.neutral">More</string>
+
+    <string name="activity.chat.command.notsupported">Command not supported</string>
+    <string name="menu.main.delete">Delete</string>
+    <string name="menu.main.edit">Edit</string>
+    <string name="menu.main.selectedcount">%1$s</string>
+
+    <string name="menu.chat.stop">Stop Service</string>
+    <string name="menu.chat.userlist">User List</string>
+
+    <string name="menu.server.accept">Accept</string>
+    <string name="menu.server.discard">Discard</string>
+
+    <string name="server.add.serverCommands">Custom serverCommands</string>
+    <string name="server.add.nickserv.password">Nickserv Password</string>
+    <string name="server.add.realname">Real Name</string>
+    <string name="server.add.identifier">Identifier</string>
+    <string name="server.add.nickname.alt">Alternate Nick</string>
+    <string name="server.add.nickname">Nick</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item
+        android:id="@+id/menu_chat_userlist"
+        android:icon="@drawable/ic_people_white_24dp"
+        android:title="@string/menu.chat.userlist"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_chat_stop_service"
+        android:title="@string/menu.chat.stop"
+        app:showAsAction="never"/>
+</menu>
