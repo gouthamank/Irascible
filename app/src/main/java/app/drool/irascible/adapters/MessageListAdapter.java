@@ -213,6 +213,13 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
                     holder.content.setTypeface(null, Typeface.ITALIC);
                     break;
 
+                case IRCMessage.CODES.noSuchNickChannel:
+                    holder.author.setVisibility(View.GONE);
+                    holder.content.setVisibility(View.VISIBLE);
+                    holder.content.setText("No such nick/channel: " + message.getChannelContext());
+                    holder.content.setTextColor(ContextCompat.getColor(context, android.R.color.holo_orange_light));
+                    break;
+
                 case IRCMessage.CODES.joinNotice:
                     holder.author.setVisibility(View.GONE);
                     holder.content.setVisibility(View.VISIBLE);

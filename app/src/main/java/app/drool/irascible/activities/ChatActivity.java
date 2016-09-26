@@ -28,6 +28,7 @@ import app.drool.irascible.R;
 import app.drool.irascible.adapters.IRCPagerAdapter;
 import app.drool.irascible.adapters.UserListAdapter;
 import app.drool.irascible.fragments.IRCFragment;
+import app.drool.irascible.interfaces.MessageAddedListener;
 import app.drool.irascible.irc.IRCCommand;
 import app.drool.irascible.irc.IRCMessage;
 import app.drool.irascible.irc.IRCServerData;
@@ -36,7 +37,7 @@ import app.drool.irascible.utils.CacheUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity implements MessageAddedListener {
     @BindView(R.id.activity_chat_toolbar)
     Toolbar toolbar;
     @BindView(R.id.activity_chat_viewpager)
@@ -77,6 +78,10 @@ public class ChatActivity extends AppCompatActivity {
             if (pagerAdapter == null) isTabNonServerFrag = false;
             else
                 isTabNonServerFrag = !pagerAdapter.getPageTitle(tab.getPosition()).toString().contentEquals("server");
+
+            if (tab.getText().toString().startsWith("* ")) {
+                tab.setText(tab.getText().toString().substring(2));
+            }
             invalidateOptionsMenu();
         }
 
@@ -146,15 +151,17 @@ public class ChatActivity extends AppCompatActivity {
                         sendMessageToService(command.getFormattedMessage());
                         if (command.isSelfCommand())
                             addSelfMessage(command.getFormattedMessage());
-                    } else
+                    } else {
                         Toast.makeText(ChatActivity.this, R.string.activity_chat_command_notsupported, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 } else {
+                    if (viewPager.getCurrentItem() == 0) return;
                     String currentTab = tabLayout.getTabAt(viewPager.getCurrentItem()).getText().toString();
                     String formattedCommand = "PRIVMSG " + currentTab + " :" +
                             textInput.getText().toString();
                     sendMessageToService(formattedCommand);
                     addSelfMessage(formattedCommand);
-
                 }
                 textInput.setText("");
             }
@@ -192,7 +199,6 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable("serverData", serverData);
         if (pagerAdapter != null) {
             outState.putInt("selectedPage", tabLayout.getSelectedTabPosition());
             outState.putStringArray("pageTitles", pagerAdapter.getPageTitles());
@@ -202,7 +208,6 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        serverData = savedInstanceState.getParcelable("serverData");
         if (pagerAdapter != null) {
             String[] pageTitles = savedInstanceState.getStringArray("pageTitles");
             if (pageTitles != null && pagerAdapter != null)
@@ -266,11 +271,12 @@ public class ChatActivity extends AppCompatActivity {
 
     private void addSelfMessage(String formattedMessage) {
         Date currentDate = new Date();
-        String messageWithTimestamp = currentDate.getTime() + " "
-                + serverData.getNickName() + "!" + serverData.getRealName() + "@" + serverData.getIdent() + " "
+        String messageWithTimestamp = currentDate.getTime() + " :"
+                + serverData.getNickName() + "!" + serverData.getIdent() + "@" + "self" + " "
                 + formattedMessage;
-
-        pagerAdapter.addMessage(IRCMessage.parse(messageWithTimestamp));
+        IRCMessage selfMessage = IRCMessage.parse(messageWithTimestamp);
+        if (!selfMessage.isInvalid() && selfMessage.getChannelContext() != null)
+            pagerAdapter.addMessage(IRCMessage.parse(messageWithTimestamp));
     }
 
     private void stopBroadcastService() {
@@ -305,5 +311,17 @@ public class ChatActivity extends AppCompatActivity {
             textInput.append(username + ": ");
         else
             textInput.append(" " + username);
+    }
+
+    // IMPL: MessageAddedListener
+
+
+    @Override
+    public void onMessageAdded(int tabPosition) {
+        if (tabLayout.getSelectedTabPosition() != tabPosition) {
+            TabLayout.Tab tab = tabLayout.getTabAt(tabPosition);
+            if (!tab.getText().toString().startsWith("* "))
+                tab.setText("* " + tab.getText());
+        }
     }
 }

@@ -53,6 +53,8 @@ public class IRCMessage implements Serializable {
         String message = "PRIVMSG";
         String actionMessage = " ACTION";
 
+        String noSuchNickChannel = "401";
+
         String channelForward = "470";
         String channelNoTopic = "331";
         String channelTopic = "332";
@@ -255,6 +257,22 @@ public class IRCMessage implements Serializable {
                 message.setUserHost(userBlockSplit[2]);
 
                 List<String> messageList = messageParts.subList(3, messageParts.size());
+                message.setMessageContent(Utils.joinStrings(messageList).substring(1));
+                break;
+            }
+
+            case CODES.noSuchNickChannel: {
+                message.setMessageCode(CODES.noSuchNickChannel);
+
+                if (messageParts.size() < 6) {
+                    message.setInvalid(true);
+                    break;
+                }
+                message.setOriginName(messageParts.get(1).substring(1));
+                message.setDestinationName(messageParts.get(3));
+                message.setChannelContext(messageParts.get(4));
+
+                List<String> messageList = messageParts.subList(5, messageParts.size());
                 message.setMessageContent(Utils.joinStrings(messageList).substring(1));
                 break;
             }
