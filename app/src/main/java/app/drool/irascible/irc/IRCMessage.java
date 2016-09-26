@@ -93,6 +93,7 @@ public class IRCMessage implements Serializable {
                 message.setMessageCode(CODES.welcomeMessage);
                 message.setOriginName(messageParts.get(1).substring(1));
                 message.setDestinationName(messageParts.get(3));
+                message.setChannelContext(null);
                 List<String> messageList = messageParts.subList(4, messageParts.size());
                 message.setMessageContent(Utils.joinStrings(messageList).substring(1));
                 break;
@@ -100,11 +101,13 @@ public class IRCMessage implements Serializable {
 
             case CODES.serverInfo: {
                 message.setMessageCode(CODES.serverInfo);
+                message.setChannelContext(null);
                 break;
             }
 
             case CODES.serverMoreInfo: {
                 message.setMessageCode(CODES.serverMoreInfo);
+                message.setChannelContext(null);
                 break;
             }
 
@@ -115,6 +118,7 @@ public class IRCMessage implements Serializable {
                 message.setOriginName(messageParts.get(1).substring(1));
                 message.setDestinationName(messageParts.get(3));
                 message.setCountVar1(messageParts.get(4));
+                message.setChannelContext(null);
                 List<String> messageList = messageParts.subList(5, messageParts.size());
                 message.setMessageContent(Utils.joinStrings(messageList).substring(1));
                 break;
@@ -127,6 +131,7 @@ public class IRCMessage implements Serializable {
                 message.setDestinationName(messageParts.get(3));
                 message.setCountVar1(messageParts.get(4));
                 message.setCountVar2(messageParts.get(5));
+                message.setChannelContext(null);
                 List<String> messageList = messageParts.subList(6, messageParts.size());
                 message.setMessageContent(Utils.joinStrings(messageList).substring(1));
                 break;
@@ -135,6 +140,7 @@ public class IRCMessage implements Serializable {
 
             case CODES.motdStart: {
                 message.setMessageCode(CODES.motdStart);
+                message.setChannelContext(null);
                 break;
             }
 
@@ -142,6 +148,7 @@ public class IRCMessage implements Serializable {
                 message.setMessageCode(CODES.motdLine);
                 message.setOriginName(messageParts.get(1).substring(1));
                 message.setDestinationName(messageParts.get(3));
+                message.setChannelContext(null);
 
                 List<String> messageContent = new ArrayList<>();
                 String[] origMessageList = messageParts.subList(4, messageParts.size()).toArray(new String[messageParts.size() - 4]);
@@ -159,6 +166,7 @@ public class IRCMessage implements Serializable {
 
             case CODES.motdEnd: {
                 message.setMessageCode(CODES.motdEnd);
+                message.setChannelContext(null);
                 break;
             }
 
@@ -199,6 +207,7 @@ public class IRCMessage implements Serializable {
                 }
                 List<String> quitMessageTag = messageParts.subList(3, messageParts.size());
                 message.setMessageContent(Utils.joinStrings(quitMessageTag).substring(1));
+                message.setChannelContext(null);
                 break;
             }
 

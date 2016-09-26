@@ -95,11 +95,15 @@ public class IRCClient {
     public void destroy() {
         try {
             shouldStopThreads = true;
-            socket.shutdownInput();
-            socket.shutdownOutput();
-            socket.close();
-            streamReader.close();
-            streamWriter.close();
+            if (socket != null) {
+                socket.shutdownInput();
+                socket.shutdownOutput();
+                socket.close();
+            }
+            if (streamReader != null)
+                streamReader.close();
+            if (streamWriter != null)
+                streamWriter.close();
             readThread.interrupt();
         } catch (IOException e) { }
     }

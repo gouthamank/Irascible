@@ -164,8 +164,35 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        confirmExit();
+    }
+
+    private void confirmExit() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ChatActivity.this);
+        dialogBuilder.setTitle("Exit Irascible?");
+        dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                sendMessageToService("QUIT");
+                stopBroadcastService();
+                finish();
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialogBuilder.create().show();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putSerializable("serverData", serverData);
         if (pagerAdapter != null) {
             outState.putInt("selectedPage", tabLayout.getSelectedTabPosition());
             outState.putStringArray("pageTitles", pagerAdapter.getPageTitles());
@@ -175,6 +202,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        serverData = savedInstanceState.getParcelable("serverData");
         if (pagerAdapter != null) {
             String[] pageTitles = savedInstanceState.getStringArray("pageTitles");
             if (pageTitles != null && pagerAdapter != null)
@@ -205,24 +233,7 @@ public class ChatActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_chat_stop_service:
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ChatActivity.this);
-                dialogBuilder.setTitle("Exit Irascible?");
-                dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        sendMessageToService("QUIT");
-                        stopBroadcastService();
-                        finish();
-                    }
-                });
-                dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                dialogBuilder.create().show();
+                confirmExit();
                 return true;
 
             case R.id.menu_chat_userlist:
