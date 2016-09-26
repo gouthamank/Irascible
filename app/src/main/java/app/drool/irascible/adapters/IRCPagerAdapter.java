@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import app.drool.irascible.fragments.IRCFragment;
 import app.drool.irascible.interfaces.MessageAddedListener;
+import app.drool.irascible.interfaces.SelfNickChangedListener;
 import app.drool.irascible.irc.IRCMessage;
 import app.drool.irascible.utils.CacheUtils;
 
@@ -17,6 +18,7 @@ public class IRCPagerAdapter extends FragmentStatePagerAdapter {
     private final String TAG = this.getClass().getSimpleName();
     private Context context;
     private MessageAddedListener messageAddedListener;
+    private SelfNickChangedListener nickChangedListener;
     private HashMap<String, IRCFragment> tabMapFragments;
     private SparseArray<String> tabMapTitles;
     private HashMap<String, Integer> tabMapPositions;
@@ -26,6 +28,9 @@ public class IRCPagerAdapter extends FragmentStatePagerAdapter {
         this.context = context;
         if (context instanceof MessageAddedListener)
             messageAddedListener = (MessageAddedListener) context;
+        if (context instanceof SelfNickChangedListener)
+            nickChangedListener = (SelfNickChangedListener) context;
+
         tabMapTitles = new SparseArray<>();
         tabMapFragments = new HashMap<>();
         tabMapPositions = new HashMap<>();
@@ -44,8 +49,20 @@ public class IRCPagerAdapter extends FragmentStatePagerAdapter {
     @SuppressWarnings("WeakerAccess")
     public void addMessage(IRCMessage message) {
         if (message == null) return;
+        if (message.getMessageCode() == null) return;
 
-        if (message.getChannelContext() != null) {
+        if (message.getMessageCode().contentEquals(IRCMessage.CODES.nickNotice) ||
+                message.getMessageCode().contentEquals(IRCMessage.CODES.quitNotice)) {
+            for (String tab : tabMapFragments.keySet()) {
+                message.setChannelContext(tab);
+                tabMapFragments.get(tab).addMessage(message);
+                if (messageAddedListener != null && tabMapPositions.containsKey(tab))
+                    messageAddedListener.onMessageAdded(tabMapPositions.get(tab));
+            }
+            if (nickChangedListener != null && message.getMessageCode().contentEquals(IRCMessage.CODES.nickNotice))
+                nickChangedListener.onSelfNickChanged(message.getMessageContent());
+
+        } else if (message.getChannelContext() != null) {
 
             if (!tabMapFragments.containsKey(message.getChannelContext())) {
                 IRCFragment newFragment = IRCFragment.newInstance(message.getChannelContext());
@@ -55,7 +72,8 @@ public class IRCPagerAdapter extends FragmentStatePagerAdapter {
                 notifyDataSetChanged();
             }
             tabMapFragments.get(message.getChannelContext()).addMessage(message);
-            messageAddedListener.onMessageAdded(tabMapPositions.get(message.getChannelContext()));
+            if (messageAddedListener != null && tabMapPositions.containsKey(message.getChannelContext()))
+                messageAddedListener.onMessageAdded(tabMapPositions.get(message.getChannelContext()));
             CacheUtils.addToFragmentLog(context, message.getChannelContext(), message.getMessageRaw());
 
         } else {
@@ -68,7 +86,8 @@ public class IRCPagerAdapter extends FragmentStatePagerAdapter {
                 notifyDataSetChanged();
             }
             tabMapFragments.get("server").addMessage(message);
-            messageAddedListener.onMessageAdded(tabMapPositions.get("server"));
+            if (messageAddedListener != null && tabMapPositions.containsKey("server"))
+                messageAddedListener.onMessageAdded(tabMapPositions.get("server"));
             CacheUtils.addToFragmentLog(context, "server", message.getMessageRaw());
         }
 

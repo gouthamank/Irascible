@@ -86,8 +86,18 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
 
             case IRCMessage.CODES.partNotice:
             case IRCMessage.CODES.quitNotice:
-                userList.remove(message.getNickName());
-                messages.add(message);
+                if (userList.contains(message.getNickName())) {
+                    userList.remove(message.getNickName());
+                    messages.add(message);
+                }
+                break;
+
+            case IRCMessage.CODES.nickNotice:
+                if (userList.contains(message.getNickName())) {
+                    userList.remove(message.getNickName());
+                    userList.add(message.getMessageContent());
+                    messages.add(message);
+                }
                 break;
 
             default:
@@ -193,7 +203,14 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
                     holder.content.setVisibility(View.VISIBLE);
                     holder.content.setText(Html.fromHtml(message.getMessageContent()));
                     holder.content.setTextColor(ContextCompat.getColor(context, android.R.color.primary_text_light));
+                    break;
 
+                case IRCMessage.CODES.channelTopicTime:
+                    holder.author.setVisibility(View.GONE);
+                    holder.content.setVisibility(View.VISIBLE);
+                    holder.content.setText("Topic set by " + message.getTopicSetBy());
+                    holder.content.setTextColor(ContextCompat.getColor(context, android.R.color.primary_text_light));
+                    break;
 
                 case IRCMessage.CODES.message:
                     holder.author.setVisibility(View.VISIBLE);
@@ -225,6 +242,13 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
                     holder.content.setVisibility(View.VISIBLE);
                     holder.content.setText(message.getNickName() + " has joined " + message.getChannelContext());
                     holder.content.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
+                    break;
+
+                case IRCMessage.CODES.nickNotice:
+                    holder.author.setVisibility(View.GONE);
+                    holder.content.setVisibility(View.VISIBLE);
+                    holder.content.setText(message.getNickName() + " has changed their name to " + message.getMessageContent());
+                    holder.content.setTextColor(ContextCompat.getColor(context, android.R.color.holo_orange_light));
                     break;
 
                 case IRCMessage.CODES.partNotice:

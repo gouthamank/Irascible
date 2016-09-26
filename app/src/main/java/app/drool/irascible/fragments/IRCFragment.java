@@ -60,10 +60,11 @@ public class IRCFragment extends Fragment {
 
     public void addMessage(IRCMessage message) {
         if (listAdapter != null) {
-            listAdapter.addMessage(message);
             if (listAdapter.getItemCount() - layoutManager.findLastVisibleItemPosition() <= 2) {
+                listAdapter.addMessage(message);
                 layoutManager.scrollToPosition(listAdapter.getItemCount() - 1);
-            }
+            } else
+                listAdapter.addMessage(message);
         }
     }
 

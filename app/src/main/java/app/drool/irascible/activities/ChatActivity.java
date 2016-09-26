@@ -29,6 +29,7 @@ import app.drool.irascible.adapters.IRCPagerAdapter;
 import app.drool.irascible.adapters.UserListAdapter;
 import app.drool.irascible.fragments.IRCFragment;
 import app.drool.irascible.interfaces.MessageAddedListener;
+import app.drool.irascible.interfaces.SelfNickChangedListener;
 import app.drool.irascible.irc.IRCCommand;
 import app.drool.irascible.irc.IRCMessage;
 import app.drool.irascible.irc.IRCServerData;
@@ -37,7 +38,7 @@ import app.drool.irascible.utils.CacheUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ChatActivity extends AppCompatActivity implements MessageAddedListener {
+public class ChatActivity extends AppCompatActivity implements MessageAddedListener, SelfNickChangedListener {
     @BindView(R.id.activity_chat_toolbar)
     Toolbar toolbar;
     @BindView(R.id.activity_chat_viewpager)
@@ -52,7 +53,7 @@ public class ChatActivity extends AppCompatActivity implements MessageAddedListe
     private IntentFilter intentFilter;
     private boolean isTabNonServerFrag;
     private IRCServerData serverData;
-
+    private String selfNick;
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -199,6 +200,7 @@ public class ChatActivity extends AppCompatActivity implements MessageAddedListe
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putString("selfNick", selfNick);
         if (pagerAdapter != null) {
             outState.putInt("selectedPage", tabLayout.getSelectedTabPosition());
             outState.putStringArray("pageTitles", pagerAdapter.getPageTitles());
@@ -208,6 +210,7 @@ public class ChatActivity extends AppCompatActivity implements MessageAddedListe
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        selfNick = savedInstanceState.getString("selfNick");
         if (pagerAdapter != null) {
             String[] pageTitles = savedInstanceState.getStringArray("pageTitles");
             if (pageTitles != null && pagerAdapter != null)
@@ -255,6 +258,7 @@ public class ChatActivity extends AppCompatActivity implements MessageAddedListe
             return;
 
         toolbar.setTitle(serverData.getServerName());
+        selfNick = serverData.getNickName();
 
         Intent startIntent = new Intent(ChatActivity.this, BroadcastService.class);
         startIntent.setAction(SERVICE.ACTIONS.startService);
@@ -272,7 +276,7 @@ public class ChatActivity extends AppCompatActivity implements MessageAddedListe
     private void addSelfMessage(String formattedMessage) {
         Date currentDate = new Date();
         String messageWithTimestamp = currentDate.getTime() + " :"
-                + serverData.getNickName() + "!" + serverData.getIdent() + "@" + "self" + " "
+                + selfNick + "!" + serverData.getIdent() + "@" + "self" + " "
                 + formattedMessage;
         IRCMessage selfMessage = IRCMessage.parse(messageWithTimestamp);
         if (!selfMessage.isInvalid() && selfMessage.getChannelContext() != null)
@@ -315,7 +319,6 @@ public class ChatActivity extends AppCompatActivity implements MessageAddedListe
 
     // IMPL: MessageAddedListener
 
-
     @Override
     public void onMessageAdded(int tabPosition) {
         if (tabLayout.getSelectedTabPosition() != tabPosition) {
@@ -323,5 +326,12 @@ public class ChatActivity extends AppCompatActivity implements MessageAddedListe
             if (!tab.getText().toString().startsWith("* "))
                 tab.setText("* " + tab.getText());
         }
+    }
+
+    // IMPL: SelfNickChangedListener
+
+    @Override
+    public void onSelfNickChanged(String newNick) {
+        selfNick = newNick;
     }
 }
